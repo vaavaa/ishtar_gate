@@ -127,7 +127,7 @@ def gen_random_values(random_cards=10000000):
     # считаем суммы совпадений во второй
     all_cards['sum_c2'] = all_cards[['que_first_c2', 'que_second_c2', 'que_third_c2', 'que_forth_c2']].sum(axis=1)
 
-    return [math3x4or4x3(all_cards), math2x4or4x2(all_cards), math1x4or4x1(all_cards), math0x4or4x0(all_cards)]
+    return [math2x3or3x2(all_cards), math1x3or3x1(all_cards), math0x3or3x0(all_cards), math1x2or2x1(all_cards), math0x2or2x0(all_cards)]
 
 
 # считаем 4х4
