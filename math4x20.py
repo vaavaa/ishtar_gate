@@ -6,9 +6,7 @@ import pandas as pd
 
 
 def gen_random_values(random_cards=10000000):
-    # r_array = np.arange(1, 21, dtype=int)
 
-    # f_card = [random.choice(r_array, size=4, replace=False) for each in range(random_cards)]
 
     # Генерим случайные числа / карточки карта 2
     entries_left = pd.DataFrame(random.randint(1, 21, size=(int(random_cards * 1.4), 4)),
@@ -48,7 +46,7 @@ def gen_random_values(random_cards=10000000):
     all_entries = pd.concat([entries_left, entries_right], axis=1)
 
     # Карточки и ответы сгенерили для одной части, далее вторая часть
-    sleep(1)
+    # ________________________________________________________________________________________
 
     # Генерим случайные числа / карточки карта 1
     all_cards_left = pd.DataFrame(random.randint(1, 21, size=(int(random_cards * 1.4), 4)),
