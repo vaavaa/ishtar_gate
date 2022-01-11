@@ -1,13 +1,9 @@
-from time import sleep
-
 import numpy as np
 from numpy import random
 import pandas as pd
 
 
-def gen_random_values(random_cards=10000000):
-
-
+def gen_random_values(random_cards=10):
     # Генерим случайные числа / карточки карта 2
     entries_left = pd.DataFrame(random.randint(1, 21, size=(int(random_cards * 1.4), 4)),
                                 columns=['l_first_c2', 'l_second_c2', 'l_third_c2', 'l_fourth_c2'])
@@ -24,25 +20,11 @@ def gen_random_values(random_cards=10000000):
     entries_left = entries_left.iloc[:, :-1]
     entries_left = entries_left.iloc[:random_cards]
     # Перестраиваем индексы
-    entries_left.reset_index(drop=True, inplace=True)
-
-    entries_right = pd.DataFrame(random.randint(1, 21, size=(int(random_cards * 1.4), 4)),
+    entries_left.reset_index(drop=True, inplace=True)  # Первая карточка со случайными данными и 4 колонками
+    # Получили базовое значение случайных чисел для первой карточки
+    rnm_values = create_random_4(random_cards)
+    entries_right = pd.DataFrame(rnm_values,
                                  columns=['r_first_c2', 'r_second_c2', 'r_third_c2', 'r_fourth_c2'])
-    # Фильтруем повторяющиеся цифры в карточке
-    entries_right['double_c2'] = np.where((entries_right['r_first_c2'] == entries_right['r_second_c2'])
-                                          | (entries_right['r_first_c2'] == entries_right['r_third_c2'])
-                                          | (entries_right['r_first_c2'] == entries_right['r_fourth_c2'])
-                                          | (entries_right['r_second_c2'] == entries_right['r_third_c2'])
-                                          | (entries_right['r_second_c2'] == entries_right['r_fourth_c2'])
-                                          | (entries_right['r_third_c2'] == entries_right['r_fourth_c2']), 1, -1)
-    # Удаляем карточки в которых есть повторяющиеся цифры
-    entries_right = entries_right[entries_right.double_c2 < 0]
-    # Выравниваем массив до нужных размеров
-    entries_right = entries_right.iloc[:, :-1]
-    entries_right = entries_right.iloc[:random_cards]
-    # Перестраиваем индексы
-    entries_right.reset_index(drop=True, inplace=True)
-
     all_entries = pd.concat([entries_left, entries_right], axis=1)
 
     # Карточки и ответы сгенерили для одной части, далее вторая часть
@@ -67,22 +49,10 @@ def gen_random_values(random_cards=10000000):
     # Перестраиваем индексы
     all_cards_left.reset_index(drop=True, inplace=True)
 
-    all_cards_right = pd.DataFrame(random.randint(1, 21, size=(int(random_cards * 1.4), 4)),
+    # Получили базовое значение случайных чисел для первой карточки
+    rnm_values = create_random_4(random_cards)
+    all_cards_right = pd.DataFrame(rnm_values,
                                    columns=['r_first_c1', 'r_second_c1', 'r_third_c1', 'r_fourth_c1'])
-    # Фильтруем повторяющиеся цифры в карточке
-    all_cards_right['double_c1'] = np.where((all_cards_right['r_first_c1'] == all_cards_right['r_second_c1'])
-                                            | (all_cards_right['r_first_c1'] == all_cards_right['r_third_c1'])
-                                            | (all_cards_right['r_first_c1'] == all_cards_right['r_fourth_c1'])
-                                            | (all_cards_right['r_second_c1'] == all_cards_right['r_third_c1'])
-                                            | (all_cards_right['r_second_c1'] == all_cards_right['r_fourth_c1'])
-                                            | (all_cards_right['r_third_c1'] == all_cards_right['r_fourth_c1']), 1, -1)
-    # Удаляем карточки в которых есть повторяющиеся цифры
-    all_cards_right = all_cards_right[all_cards_right.double_c1 < 0]
-    # Выравниваем массив до нужных размеров
-    all_cards_right = all_cards_right[:random_cards]
-    all_cards_right = all_cards_right.iloc[:, :-1]
-    all_cards_left.reset_index(drop=True, inplace=True)
-
     all_cards = pd.concat([all_cards_left, all_cards_right, all_entries], axis=1)
 
     # Первая карта просчет
@@ -125,7 +95,27 @@ def gen_random_values(random_cards=10000000):
     # считаем суммы совпадений во второй
     all_cards['sum_c2'] = all_cards[['que_first_c2', 'que_second_c2', 'que_third_c2', 'que_forth_c2']].sum(axis=1)
 
-    return [math2x3or3x2(all_cards), math1x3or3x1(all_cards), math0x3or3x0(all_cards), math1x2or2x1(all_cards), math0x2or2x0(all_cards)]
+    return [math4x4(all_cards), math3x3(all_cards), math2x2(all_cards),
+            math3x4or4x3(all_cards), math2x4or4x2(all_cards), math1x4or4x1(all_cards),
+            math0x4or4x0(all_cards), math2x3or3x2(all_cards), math1x3or3x1(all_cards),
+            math0x3or3x0(all_cards), math1x2or2x1(all_cards), math0x2or2x0(all_cards)]
+
+
+def create_random_4(repeat_count=0):
+    outcome_arr = []
+    while 1:
+        r_int = random.randint(1, 21, 1)
+        if len(outcome_arr) == 0:
+            outcome_arr.append(r_int[0])
+        else:
+            if outcome_arr.count(r_int[0]) == 0:
+                outcome_arr.append(r_int[0])
+            if len(outcome_arr) == 4:
+                break
+    np_array = np.array(outcome_arr)
+    # Повторяем нужное количество раз копирование значения
+    np_array = np.tile(np_array, (repeat_count, 1))
+    return np_array
 
 
 # считаем 4х4
